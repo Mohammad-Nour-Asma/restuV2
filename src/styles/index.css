@@ -160,3 +160,36 @@ span.Cancelled {
     background: #f4f7fe !important;
     border-color: #6074da6e !important;
 }
+
+
+@keyframes bumb {
+  0%{
+    transform: scale(1);
+  }
+  50%{
+    transform: scale(1.1);
+
+  }
+  100%{
+    transform: scale(1);
+
+  }
+}
+
+@keyframes textFade {
+  0%{
+   opacity: 0;
+  }
+  100%{
+    transform: scale(1);
+
+  }
+}
+
+
+
+.logo {
+
+  animation: bumb 1.7s ease-in-out infinite;
+ 
+}

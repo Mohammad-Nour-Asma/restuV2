@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Categories from "./pages/Categories";
 import AddCategory from "./pages/AddCategory";
+import CheckUuid from "./pages/CheckUuid";
 
 const sideBarWidth = 250;
 
@@ -29,7 +30,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Box sx={{ display: "flex" }}>
-        {location.pathname !== "/" && (
+        {location.pathname !== "/" && !location.pathname.includes("check") && (
           <>
             <Navbar
               sideBarWidth={sideBarWidth}
@@ -53,6 +54,7 @@ function App() {
           {/* Routes */}
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/check/:uuid" element={<CheckUuid />} />
 
             <Route path="/products" element={<Products />} />
             <Route path="/products/add" element={<AddProduct />} />
