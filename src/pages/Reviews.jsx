@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { request } from "../Request/request";
 import { useSelector } from "react-redux";
@@ -7,6 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Box, Rating, Skeleton, Typography } from "@mui/material";
 import Layout from "../components/common/Layout";
 import MaterialReactTable from "material-react-table";
+import axios from "axios";
+import { useErrorBoundary } from "react-error-boundary";
+import ErrorComponent from "../components/ErrorComponent";
 
 const Reviews = () => {
   const { branch_id } = useSelector((state) => state.settings);
@@ -16,7 +19,7 @@ const Reviews = () => {
     });
   };
 
-  const { isLoading, data, refetch, isRefetching } = useQuery({
+  const { isLoading, data, refetch, isRefetching, error, isError } = useQuery({
     queryKey: [`get-feedback-${branch_id}`],
     queryFn: getOrdersReviews,
   });
@@ -25,7 +28,56 @@ const Reviews = () => {
     refetch();
   }, [branch_id]);
 
-  console.log(data);
+  const [loader, setLoader] = useState(false);
+
+  async function downloadExil(branch_id) {
+    setLoader(true);
+    try {
+      setLoader(true);
+      const response = await axios.get(
+        `https://api.foodyno.gomaplus.tech/api/export/${branch_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          responseType: "arraybuffer", // Ensure the response is treated as binary data
+        }
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      // Create a URL for the Blob
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Create a link and click it to trigger download
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "downloaded_file.xlsx"; // Set the desired file name
+      link.click();
+
+      // Clean up the Blob URL
+      URL.revokeObjectURL(blobUrl);
+      setLoader(false);
+    } catch (error) {
+      setLoader(false);
+
+      // Handle the error appropriately (show an error message, etc.)
+    }
+  }
+  const { showBoundary } = useErrorBoundary();
+  let errorMessage;
+  if (isError) {
+    if (error?.response?.status === 404)
+      errorMessage = "Data Not Found - Please Contact The Technical Team Or";
+    else if (error?.response?.status === 500)
+      errorMessage =
+        "Something Went Wrong In Our Server - Please Contact The Technical Team Or";
+    else {
+      showBoundary(error);
+    }
+  }
 
   return (
     <Box sx={{ pt: "80px", pb: "20px" }}>
@@ -48,6 +100,42 @@ const Reviews = () => {
           Orders
         </Typography>
       </Box>
+
+      {loader ? (
+        <Typography
+          sx={{
+            color: "#b27ded",
+            textDecoration: "underline",
+            cursor: "pointer",
+            fontSize: "0.8rem",
+            marginBottom: "1rem",
+            "&:active": {
+              transform: "translateY(2px)",
+            },
+          }}
+        >
+          Downloading...
+        </Typography>
+      ) : (
+        <Typography
+          sx={{
+            color: "#b27ded",
+            textDecoration: "underline",
+            cursor: "pointer",
+            fontSize: "0.8rem",
+            marginBottom: "1rem",
+            "&:active": {
+              transform: "translateY(2px)",
+            },
+          }}
+          onClick={() => {
+            downloadExil(branch_id);
+          }}
+        >
+          Export Excel Sheet
+        </Typography>
+      )}
+
       <Layout>
         <Box sx={{ pb: "20px" }}>
           {isLoading || isRefetching ? (
@@ -56,11 +144,13 @@ const Reviews = () => {
               width={"100%"}
               height={"400px"}
             />
+          ) : isError ? (
+            <ErrorComponent message={errorMessage} refetch={refetch} />
           ) : (
             <MaterialReactTable
               title="Expandable Table"
-              data={data.data.data}
-              numberOfRows={data.data.data.length}
+              data={data?.data?.data}
+              numberOfRows={data?.data?.data?.length}
               enableTopToolBar={true}
               enableBottomToolBar={true}
               enablePagination={true}

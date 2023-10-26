@@ -9,6 +9,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import Loader from "../components/common/loader/loader";
 import Notify from "../components/common/Notify";
 import { useSelector } from "react-redux";
+import { useErrorBoundary } from "react-error-boundary";
+import ErrorComponent from "../components/ErrorComponent";
 
 const Offer = () => {
   const { branch_id } = useSelector((state) => state.settings);
@@ -17,20 +19,20 @@ const Offer = () => {
     return request({ url: `offer/branch/${branch_id}`, method: "GET" });
   };
 
-  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching, error } = useQuery({
     queryKey: ["offers-get"],
     queryFn: getOffers,
   });
-  const offers = data?.data.data;
 
   const handleDelete = (id) => {
-    return request({ url: `offer/${id}`, method: "POST" });
+    return request({ url: `offer/${id}`, method: "DELETE" });
   };
 
   const mutate = useMutation({
     mutationFn: handleDelete,
-    onSuccess: () => {
+    onSuccess: (err) => {
       setOpen(true);
+      console.log(err);
     },
   });
 
@@ -43,6 +45,20 @@ const Offer = () => {
   useEffect(() => {
     refetch();
   }, [branch_id]);
+
+  const { showBoundary } = useErrorBoundary();
+
+  let errorMessage;
+  if (isError) {
+    if (error?.response?.status === 404)
+      errorMessage = "Data Not Found - Please Contact The Technical Team Or";
+    else if (error?.response?.status === 500)
+      errorMessage =
+        "Something Went Wrong In Our Server - Please Contact The Technical Team Or";
+    else showBoundary(error);
+  }
+  const offers = data?.data?.data;
+
   return (
     <Page button={"add offer"} link={"/offer/add"} title={"Offers"}>
       <Notify
@@ -59,6 +75,8 @@ const Offer = () => {
             height={"400px"}
           />
         </Layout>
+      ) : isError ? (
+        <ErrorComponent message={errorMessage} refetch={refetch} />
       ) : (
         <Table
           data={offers}
@@ -72,6 +90,7 @@ const Offer = () => {
           showPreview={false}
           routeLink="offer"
           deleteElement={mutate}
+          enableEditing={true}
         />
       )}
     </Page>

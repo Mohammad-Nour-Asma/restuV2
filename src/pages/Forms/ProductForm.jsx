@@ -30,11 +30,12 @@ const ProductForm = ({ row }) => {
   let initialValues;
   const { branch_id } = useSelector((state) => state.settings);
   if (row) {
+    console.log(row);
     initialValues = {
       name: row.original.name,
       description: row.original.description,
       price: row.original.price,
-      estimated_time: row.original.estimated_time,
+      estimated_time: row.original.estimated_time.slice(3, 5),
       position: row.original.position,
       description_ar: row.original.description_ar,
       name_ar: row.original.name_ar,
@@ -58,7 +59,7 @@ const ProductForm = ({ row }) => {
   const handleSubmit = (values) => {
     const product = {
       ...values,
-      estimated_time: `00:${values.estimated_time}`,
+      estimated_time: `00:${values.estimated_time}:00`,
       category_id: selectedCategory,
       status: status ? 1 : 0,
       branch_id,
@@ -187,6 +188,7 @@ const ProductForm = ({ row }) => {
     onSuccess: () => {
       setOpen(true);
       row.original.name = updatedMeal.name;
+      row.original.name_ar = updatedMeal.name_ar;
       row.original.category.name = categories.find(
         (item) => item.id == selectedCategory
       ).name;
@@ -196,9 +198,10 @@ const ProductForm = ({ row }) => {
       row.original.position = updatedMeal.position;
       row.original.price = updatedMeal.price;
       row.original.status = updatedMeal.status;
-    },
-    if(image) {
-      row.original.image = URL.createObjectURL(image);
+
+      if (image) {
+        row.original.image = URL.createObjectURL(image);
+      }
     },
     onError: () => {
       setOpen(true);
@@ -522,6 +525,10 @@ const ProductForm = ({ row }) => {
                       variant={"contained"}
                       title={"submit"}
                       type="submit"
+                      sx={{
+                        background:
+                          "linear-gradient(to bottom, #dd78ef, #779bc2) !important",
+                      }}
                       loading={
                         row ? updateMutation.isPending : addProduct.isPending
                       }

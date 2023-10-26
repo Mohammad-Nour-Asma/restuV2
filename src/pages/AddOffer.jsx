@@ -129,6 +129,10 @@ const AddOffer = () => {
             loading={progress.loading}
             variant={"contained"}
             onClick={submitHandle}
+            sx={{
+              background:
+                "linear-gradient(to bottom, #dd78ef, #779bc2) !important",
+            }}
           ></MyLoadingButton>
         </Box>
       </Layout>

@@ -10,6 +10,8 @@ import Loader from "../components/common/loader/loader";
 import CategoryForm from "./Forms/CategoryForm";
 import Notify from "../components/common/Notify";
 import { useSelector } from "react-redux";
+import { useErrorBoundary } from "react-error-boundary";
+import ErrorComponent from "../components/ErrorComponent";
 
 const Categories = () => {
   const offerColumns = [
@@ -49,7 +51,7 @@ const Categories = () => {
     });
   };
 
-  const { data, isLoading, isError, isSuccess } = useQuery({
+  const { data, isLoading, isError, isSuccess, error, refetch } = useQuery({
     queryKey: [`category-${branch_id}-get`],
     queryFn: getCategory,
     cacheTime: 0,
@@ -77,6 +79,19 @@ const Categories = () => {
     setOpen(false);
   };
 
+  const { showBoundary } = useErrorBoundary();
+  let errorMessage;
+  if (isError) {
+    if (error?.response?.status === 404)
+      errorMessage = "Data Not Found - Please Contact The Technical Team Or";
+    else if (error?.response?.status === 500)
+      errorMessage =
+        "Something Went Wrong In Our Server - Please Contact The Technical Team Or";
+    else {
+      showBoundary(error);
+    }
+  }
+
   return (
     <Page button={"add category"} link={"/category/add"} title={"Category"}>
       <Notify
@@ -93,11 +108,13 @@ const Categories = () => {
               height={"400px"}
             />
           </Layout>
+        ) : isError ? (
+          <ErrorComponent message={errorMessage} refetch={refetch} />
         ) : (
           <Table
             data={categories}
             fields={offerColumns}
-            numberOfRows={categories.length}
+            numberOfRows={categories?.length}
             enableTopToolBar={false}
             enableBottomToolBar={false}
             enablePagination={true}

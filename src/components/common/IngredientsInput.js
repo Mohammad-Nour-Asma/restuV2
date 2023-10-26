@@ -74,6 +74,15 @@ const ExpandedTable = ({ data, type, refetch, setOpen }) => {
     },
   });
 
+  const sendTheFilterdData = (ingredients) => {
+    let data = ingredients.filter(
+      (ingredient) => ingredient.id !== 0 && ingredient.quantity !== 0
+    );
+    if (data.length > 0) {
+      sendRequest.mutate(data);
+    }
+  };
+
   if (sendRequest.isPending) {
     return <Loader />;
   }
@@ -315,30 +324,7 @@ const ExpandedTable = ({ data, type, refetch, setOpen }) => {
             borderRadius: "5px",
           }}
           onClick={() => {
-            dispatch(ready_to_submiting());
-          }}
-        >
-          Confirm
-        </Button>
-      </Box>
-      <Box
-        sx={{
-          transform: open ? "translateX(-0)" : "translateX(-100px)",
-          transition: "0.2s",
-          width: "fit-content",
-        }}
-        mt={2}
-        textAlign={"center"}
-      >
-        <Button
-          disabled={!open}
-          sx={{
-            background:
-              "linear-gradient(to bottom, #dd78ef, #779bc2) !important",
-            color: "white",
-          }}
-          onClick={() => {
-            sendRequest.mutate(ingredients);
+            sendTheFilterdData(ingredients);
           }}
         >
           Submit

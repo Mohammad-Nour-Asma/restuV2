@@ -42,7 +42,7 @@ const CheckUuid = () => {
       );
       setOpacity(true);
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/products");
       }, 900);
     },
     onError: (err) => {

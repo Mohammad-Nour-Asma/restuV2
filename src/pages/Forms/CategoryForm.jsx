@@ -278,6 +278,10 @@ const CategoryForm = ({ row }) => {
                 variant={"contained"}
                 loading={row ? updateCategory.isPending : addCategory.isPending}
                 type="submit"
+                sx={{
+                  background:
+                    "linear-gradient(to bottom, #dd78ef, #779bc2) !important",
+                }}
               />
             </Box>
           </form>

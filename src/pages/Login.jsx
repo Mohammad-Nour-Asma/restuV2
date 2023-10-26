@@ -1,4 +1,14 @@
-import { Box, TextField, Stack, createTheme, Button, InputLabel, OutlinedInput, InputAdornment, IconButton } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Stack,
+  createTheme,
+  Button,
+  InputLabel,
+  OutlinedInput,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import React, { useState } from "react";
 import GridBox from "../components/common/GridBox";
 import GridItem from "../components/common/GridItem";
@@ -11,20 +21,19 @@ import { useNavigate } from "react-router-dom";
 import Resto from "../images/3.png";
 import { useDispatch } from "react-redux";
 import { setRestaurantId } from "../redux/SettingsSlice";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useErrorBoundary } from "react-error-boundary";
 
 const Login = () => {
   const [info, setInfo] = useState({ loading: false, error: false });
+  const { showBoundary } = useErrorBoundary();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = React.useState(false);
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
-
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -44,7 +53,11 @@ const Login = () => {
         navigate("/products");
       })
       .catch((err) => {
-        setInfo({ error: true, loading: false });
+        if (err?.response?.status === 422)
+          setInfo({ error: true, loading: false });
+        else {
+          showBoundary(err);
+        }
       });
   };
 
@@ -81,8 +94,11 @@ const Login = () => {
               >
                 <Stack mt={"4rem"} spacing={3}>
                   <Box>
+                    <InputLabel htmlFor="outlined-adornment-Email">
+                      Email
+                    </InputLabel>
                     <TextField
-                      label="Email"
+                      id={"outlined-adornment-Email"}
                       type="string"
                       variant="outlined"
                       onBlur={handleBlur}
@@ -93,12 +109,13 @@ const Login = () => {
                       fullWidth
                     />
                   </Box>
-               
+
                   <Box>
-                  <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                  <OutlinedInput
-                 
-                    
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Password
+                    </InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-password"
                       name="password"
                       autoComplete="current-password"
                       variant="outlined"
@@ -107,25 +124,21 @@ const Login = () => {
                       error={!!touched.password && !!errors.password}
                       helperText={touched.password && errors.password}
                       fullWidth
-                    id="outlined-adornment-password"
-                    type={showPassword ? 'text' : 'password'}
-                    endAdornment={
-                      <InputAdornment
-                                            
-                      position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                  />
-        
+                      type={showPassword ? "text" : "password"}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Password"
+                    />
                   </Box>
                 </Stack>
                 <Box mt="3rem">

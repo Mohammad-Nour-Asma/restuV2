@@ -14,6 +14,11 @@ export const ingredientColumns = [
   {
     accessorKey: "price_per_piece", //access nested data with dot notation
     header: "Price",
+    Cell: ({ cell }) => {
+      const number = formatNumber(cell.getValue());
+
+      return <Typography>{number} SAR</Typography>;
+    },
   },
 ];
 export const mealIngredientColumns = [

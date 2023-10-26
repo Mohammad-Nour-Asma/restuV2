@@ -1,4 +1,3 @@
-
 import React, { useCallback, useMemo, useState } from "react";
 import MaterialReactTable from "material-react-table";
 import { Button, IconButton, Switch, Tooltip } from "@mui/material";
@@ -226,17 +225,19 @@ export const Table = ({
                   </Link>
                 </Tooltip>
               )}
-              {enableEditing && routeLink !== "productExtra" && (
-                <Tooltip arrow placement="right" title="Edit">
-                  <IconButton
-                    onClick={() => {
-                      handleOpen("edit", row);
-                    }}
-                  >
-                    <AiOutlineEdit />
-                  </IconButton>
-                </Tooltip>
-              )}
+              {enableEditing &&
+                routeLink !== "productExtra" &&
+                routeLink !== "offer" && (
+                  <Tooltip arrow placement="right" title="Edit">
+                    <IconButton
+                      onClick={() => {
+                        handleOpen("edit", row);
+                      }}
+                    >
+                      <AiOutlineEdit />
+                    </IconButton>
+                  </Tooltip>
+                )}
               {hideFromMenu &&
                 (routeLink === "products" || routeLink === "categories") && (
                   <SwitchForMenu
